@@ -2,11 +2,19 @@ import { Router } from 'express';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase, getCollections } from '../db.js';
 import { verifyToken, verifyAdmin } from '../middlewares/auth.js';
+import { getAdminStatsHandler } from './stats.js';
 
 const router = Router();
 
 // Apply verifyToken and verifyAdmin to all admin routes
 router.use(verifyToken, verifyAdmin);
+
+/**
+ * GET /api/admin/stats (Step S7)
+ * Admin executive metrics: total users, technicians, pending services,
+ * revenue by month, bookings by status.
+ */
+router.get('/stats', getAdminStatsHandler);
 
 const VALID_ROLES = ['customer', 'technician', 'admin'];
 

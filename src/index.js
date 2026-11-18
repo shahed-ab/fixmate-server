@@ -1,3 +1,5 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import dotenv from 'dotenv';
 import corsMiddleware from './config/cors.js';
@@ -8,7 +10,13 @@ import adminRouter from './routes/admin.js';
 import usersRouter from './routes/users.js';
 import bookingsRouter from './routes/bookings.js';
 import paymentsRouter, { stripeWebhookHandler } from './routes/payments.js';
+import statsRouter from './routes/stats.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from server/.env if present, falling back to process cwd
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config();
 
 const app = express();
@@ -57,6 +65,10 @@ app.use('/api/bookings', bookingsRouter);
 
 // Payments API routes (Step S6)
 app.use('/api/payments', paymentsRouter);
+
+// Stats API routes (Step S7)
+// Endpoints: GET /api/customer/stats, /api/technician/stats, /api/admin/stats, public GET /api/stats
+app.use('/api', statsRouter);
 
 // ============================================================================
 // TEMPORARY TEST ROUTES (Step S2 - marked for removal in Step I7)
