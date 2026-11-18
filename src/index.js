@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import corsMiddleware from './config/cors.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandlers.js';
 import { verifyToken, verifyAdmin } from './middlewares/auth.js';
+import servicesRouter from './routes/services.js';
 
 dotenv.config();
 
@@ -36,6 +37,9 @@ app.get('/api/health', (req, res) => {
     time: new Date().toISOString(),
   });
 });
+
+// Services API routes (Step S3)
+app.use('/api/services', servicesRouter);
 
 // ============================================================================
 // TEMPORARY TEST ROUTES (Step S2 - marked for removal in Step I7)
