@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import corsMiddleware from './config/cors.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandlers.js';
+import { verifyToken, verifyAdmin } from './middlewares/auth.js';
 
 dotenv.config();
 
@@ -35,6 +36,25 @@ app.get('/api/health', (req, res) => {
     time: new Date().toISOString(),
   });
 });
+
+// ============================================================================
+// TEMPORARY TEST ROUTES (Step S2 - marked for removal in Step I7)
+// ============================================================================
+app.get('/api/me', verifyToken, (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+});
+
+app.get('/api/test/admin', verifyToken, verifyAdmin, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Admin access granted',
+    user: req.user,
+  });
+});
+// ============================================================================
 
 // 404 handler
 app.use(notFoundHandler);
