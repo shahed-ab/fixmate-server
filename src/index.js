@@ -6,6 +6,7 @@ import { verifyToken, verifyAdmin } from './middlewares/auth.js';
 import servicesRouter from './routes/services.js';
 import adminRouter from './routes/admin.js';
 import usersRouter from './routes/users.js';
+import bookingsRouter from './routes/bookings.js';
 
 dotenv.config();
 
@@ -48,6 +49,9 @@ app.use('/api/admin', adminRouter);
 
 // Users API routes (Step S4)
 app.use('/api/users', usersRouter);
+
+// Bookings API routes (Step S5)
+app.use('/api/bookings', bookingsRouter);
 
 // ============================================================================
 // TEMPORARY TEST ROUTES (Step S2 - marked for removal in Step I7)
