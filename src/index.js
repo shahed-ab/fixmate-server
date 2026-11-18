@@ -4,6 +4,8 @@ import corsMiddleware from './config/cors.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandlers.js';
 import { verifyToken, verifyAdmin } from './middlewares/auth.js';
 import servicesRouter from './routes/services.js';
+import adminRouter from './routes/admin.js';
+import usersRouter from './routes/users.js';
 
 dotenv.config();
 
@@ -40,6 +42,12 @@ app.get('/api/health', (req, res) => {
 
 // Services API routes (Step S3)
 app.use('/api/services', servicesRouter);
+
+// Admin API routes (Step S4)
+app.use('/api/admin', adminRouter);
+
+// Users API routes (Step S4)
+app.use('/api/users', usersRouter);
 
 // ============================================================================
 // TEMPORARY TEST ROUTES (Step S2 - marked for removal in Step I7)
