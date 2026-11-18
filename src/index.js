@@ -7,6 +7,7 @@ import servicesRouter from './routes/services.js';
 import adminRouter from './routes/admin.js';
 import usersRouter from './routes/users.js';
 import bookingsRouter from './routes/bookings.js';
+import paymentsRouter, { stripeWebhookHandler } from './routes/payments.js';
 
 dotenv.config();
 
@@ -16,11 +17,12 @@ const app = express();
 app.use(corsMiddleware);
 
 // ============================================================================
-// STRIPE WEBHOOK RAW-BODY ROUTE PLACEHOLDER (Step S6)
+// STRIPE WEBHOOK RAW-BODY ROUTE (Step S6)
 // Route: POST /api/webhook/stripe
 // Must be registered BEFORE express.json() to accept raw body (express.raw)
 // for Stripe signature verification.
 // ============================================================================
+app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), stripeWebhookHandler);
 
 // Parse JSON request bodies
 app.use(express.json());
@@ -52,6 +54,9 @@ app.use('/api/users', usersRouter);
 
 // Bookings API routes (Step S5)
 app.use('/api/bookings', bookingsRouter);
+
+// Payments API routes (Step S6)
+app.use('/api/payments', paymentsRouter);
 
 // ============================================================================
 // TEMPORARY TEST ROUTES (Step S2 - marked for removal in Step I7)
