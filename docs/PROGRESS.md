@@ -30,6 +30,6 @@
 - [x] I4
 - [x] I5
 - [x] I6
-- [ ] I7
+- [x] I7
 - [ ] DEPLOY
 - [ ] README
