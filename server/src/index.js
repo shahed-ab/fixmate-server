@@ -4,7 +4,6 @@ import express from 'express';
 import dotenv from 'dotenv';
 import corsMiddleware from './config/cors.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandlers.js';
-import { verifyToken, verifyAdmin } from './middlewares/auth.js';
 import servicesRouter from './routes/services.js';
 import adminRouter from './routes/admin.js';
 import usersRouter from './routes/users.js';
@@ -69,25 +68,6 @@ app.use('/api/payments', paymentsRouter);
 // Stats API routes (Step S7)
 // Endpoints: GET /api/customer/stats, /api/technician/stats, /api/admin/stats, public GET /api/stats
 app.use('/api', statsRouter);
-
-// ============================================================================
-// TEMPORARY TEST ROUTES (Step S2 - marked for removal in Step I7)
-// ============================================================================
-app.get('/api/me', verifyToken, (req, res) => {
-  res.status(200).json({
-    success: true,
-    user: req.user,
-  });
-});
-
-app.get('/api/test/admin', verifyToken, verifyAdmin, (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Admin access granted',
-    user: req.user,
-  });
-});
-// ============================================================================
 
 // 404 handler
 app.use(notFoundHandler);
