@@ -29,7 +29,7 @@
 - [x] I3
 - [x] I4
 - [x] I5
-- [ ] I6
+- [x] I6
 - [ ] I7
 - [ ] DEPLOY
 - [ ] README
