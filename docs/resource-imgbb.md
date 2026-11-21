@@ -21,7 +21,7 @@ Generate an API key and copy it.
 Create a `.env.local` file in your project root.
 
 ```
-NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key_here
+IMGBB_API_KEY=your_imgbb_api_key_here
 ```
 
 Restart your development server after adding the environment variable.
@@ -40,7 +40,7 @@ const uploadImage = async (imageFile) => {
   formData.append("image", imageFile);
 
   const response = await fetch(
-    `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+    `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
     {
       method: "POST",
       body: formData,
@@ -139,7 +139,7 @@ export default function ImageUploader() {
       setLoading(true);
 
       const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+        `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
         {
           method: "POST",
           body: formData,

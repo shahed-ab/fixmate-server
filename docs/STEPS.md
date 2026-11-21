@@ -26,7 +26,7 @@ Client scaffold in /client (create if missing; keep the git repo create-next-app
 - Next.js App Router, TypeScript, Tailwind, ESLint, no src dir. Add shadcn/ui, sonner, react-hook-form, zod, @hookform/resolvers, lucide-react, recharts.
 - Theme tokens as CSS variables + Tailwind theme (teal/green primary, off-white background) from @design/FixMate - Home Page.png (colors only). Fonts via next/font.
 - Create: <Toaster/> in root layout; components/Logo (wrench icon + FixMate, one size everywhere); StatusBadge (requested=blue, accepted=indigo, in-progress=amber, completed=green, rejected=red, cancelled=gray); PaymentBadge (unpaid/paid); shared Button style; Container.
-- .env.example: NEXT_PUBLIC_API_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, MONGODB_URI, DB_NAME, NEXT_PUBLIC_IMGBB_API_KEY. Ensure .env.local is git-ignored.
+- .env.example: NEXT_PUBLIC_API_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, MONGODB_URI, DB_NAME, IMGBB_API_KEY. Ensure .env.local is git-ignored.
 
 ## C2
 Mock data layer. Read PLAN.md section 3 (schemas) only.
