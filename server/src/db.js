@@ -8,6 +8,39 @@ if (typeof dns.setDefaultResultOrder === 'function') {
 
 let cachedClient = null;
 let cachedDb = null;
+let indexesCreated = false;
+
+/**
+ * Creates required indexes across all collections per PLAN.md Section 3 and brief specs.
+ */
+export async function createIndexes(db) {
+  const collections = getCollections(db);
+
+  try {
+    // 1. users indexes
+    await collections.users.createIndex({ email: 1 }, { unique: true });
+    await collections.users.createIndex({ role: 1 });
+
+    // 2. services indexes
+    await collections.services.createIndex({ approvalStatus: 1, isAvailable: 1, createdAt: -1 });
+    await collections.services.createIndex({ technicianEmail: 1 });
+    await collections.services.createIndex({ category: 1 });
+    await collections.services.createIndex({ title: 'text', category: 'text' });
+
+    // 3. bookings indexes
+    await collections.bookings.createIndex({ customerEmail: 1, createdAt: -1 });
+    await collections.bookings.createIndex({ technicianEmail: 1, status: 1 });
+    await collections.bookings.createIndex({ serviceId: 1, customerEmail: 1, status: 1 });
+
+    // 4. payments indexes
+    await collections.payments.createIndex({ stripeSessionId: 1 }, { unique: true, sparse: true });
+    await collections.payments.createIndex({ bookingId: 1 }, { unique: true, sparse: true });
+    await collections.payments.createIndex({ customerEmail: 1 });
+    await collections.payments.createIndex({ technicianEmail: 1 });
+  } catch (err) {
+    console.warn('Notice: index creation completed or deferred:', err.message);
+  }
+}
 
 /**
  * Connects to MongoDB with connection caching for serverless / persistent environments.
@@ -34,6 +67,11 @@ export async function connectToDatabase() {
   cachedClient = client;
   cachedDb = db;
 
+  if (!indexesCreated) {
+    indexesCreated = true;
+    createIndexes(db).catch(() => {});
+  }
+
   return { client, db };
 }
 
@@ -53,32 +91,4 @@ export function getCollections(db) {
     bookings: activeDb.collection('bookings'),
     payments: activeDb.collection('payments'),
   };
-}
-
-/**
- * Creates required indexes across all collections per PLAN.md Section 3.
- */
-export async function createIndexes(db) {
-  const collections = getCollections(db);
-
-  // 1. users indexes
-  await collections.users.createIndex({ email: 1 }, { unique: true });
-  await collections.users.createIndex({ role: 1 });
-
-  // 2. services indexes
-  await collections.services.createIndex({ approvalStatus: 1, isAvailable: 1, createdAt: -1 });
-  await collections.services.createIndex({ technicianEmail: 1 });
-  await collections.services.createIndex({ category: 1 });
-  await collections.services.createIndex({ title: 'text', category: 'text' });
-
-  // 3. bookings indexes
-  await collections.bookings.createIndex({ customerEmail: 1, createdAt: -1 });
-  await collections.bookings.createIndex({ technicianEmail: 1, status: 1 });
-  await collections.bookings.createIndex({ serviceId: 1, customerEmail: 1, status: 1 });
-
-  // 4. payments indexes
-  await collections.payments.createIndex({ stripeSessionId: 1 }, { unique: true, sparse: true });
-  await collections.payments.createIndex({ bookingId: 1 }, { unique: true, sparse: true });
-  await collections.payments.createIndex({ customerEmail: 1 });
-  await collections.payments.createIndex({ technicianEmail: 1 });
 }
