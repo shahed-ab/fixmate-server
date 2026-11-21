@@ -3,3 +3,7 @@ node_modules/
 .env
 .env.local
 server/.env
+vercel-*.env
+.env*.local
+!.env.example
+
