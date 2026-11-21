@@ -31,5 +31,5 @@
 - [x] I5
 - [x] I6
 - [x] I7
-- [ ] DEPLOY
-- [ ] README
+- [x] DEPLOY
+- [x] README

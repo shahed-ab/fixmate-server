@@ -1,4 +1,10 @@
+import dns from 'dns';
 import { MongoClient } from 'mongodb';
+
+// Ensure IPv4 lookup precedence on Windows
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 let cachedClient = null;
 let cachedDb = null;
@@ -18,7 +24,10 @@ export async function connectToDatabase() {
     throw new Error('MONGODB_URI environment variable is not defined');
   }
 
-  const client = new MongoClient(uri);
+  const client = new MongoClient(uri, {
+    serverSelectionTimeoutMS: 15000,
+    connectTimeoutMS: 10000,
+  });
   await client.connect();
   const db = client.db(dbName);
 

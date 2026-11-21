@@ -1,7 +1,13 @@
+import dns from 'dns';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
 import dotenv from 'dotenv';
+
+// Prefer IPv4 to avoid slow AAAA/IPv6 DNS resolution timeouts on Windows with Atlas
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 import corsMiddleware from './config/cors.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandlers.js';
 import servicesRouter from './routes/services.js';
