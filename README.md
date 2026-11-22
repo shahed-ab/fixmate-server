@@ -330,10 +330,8 @@ Deployed on **Vercel**.
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
-- LinkedIn: [your-linkedin](https://linkedin.com/in/your-linkedin)
-- Portfolio: [your-portfolio.com](https://your-portfolio.com)
-
+- GitHub: [](https://github.com/shahed-ab)
+- LinkedIn: [](https://www.linkedin.com/in/abushahed/)
 ---
 
 <div align="center">
