@@ -1,127 +1,343 @@
 # FixMate | On-Demand Device & Home Appliance Repair Platform
+<div align="center">
 
-**FixMate** is a full-stack, role-based repair service platform built with Next.js 16 (App Router), Express.js, MongoDB Atlas, Better Auth, JWT, and Stripe.
+# ⚙️ FixMate — Server
 
-It connects customers needing device repairs (smartphones, laptops, AC units, refrigerators, TVs, washing machines, and electrical appliances) with verified technicians. FixMate enforces a **pay-after-service model**: customers send requests, track progress through an atomic status pipeline, and pay securely via Stripe only after the technician marks the job completed.
+**REST API for the FixMate repair booking platform.**
+JWT auth, role-based middlewares, a server-enforced job pipeline, and Stripe payments.
 
----
+[![Live API](https://img.shields.io/badge/Live_API-fixmate--server--six.vercel.app-0f766e?style=for-the-badge&logo=vercel&logoColor=white)](https://fixmate-server-six.vercel.app/)
+[![Client](https://img.shields.io/badge/Client-fixmate--client--ujyn.vercel.app-134e4a?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://fixmate-client-ujyn.vercel.app/)
 
-## 🔗 Live Deployments
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-Auth-000000?logo=jsonwebtokens&logoColor=white)
+![Stripe](https://img.shields.io/badge/Stripe-Test_Mode-635BFF?logo=stripe&logoColor=white)
 
-- **Frontend Application:** `https://your-client-domain.vercel.app`
-- **Backend API Server:** `https://your-server-domain.vercel.app`
-- **API Health Check:** `https://your-server-domain.vercel.app/api/health`
-
----
-
-## 🔑 Demo & Evaluator Accounts
-
-All seeded demo accounts share the universal password: `Password123!`
-
-| Role | Email | Password | Primary Capabilities |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@fixmate.io` | `Password123!` | Executive KPIs, approve/reject services, manage user roles, global bookings & audit logs |
-| **Technician** | `alex.technician@fixmate.io` | `Password123!` | Create & manage services, accept/reject booking requests, update repair status, earnings metrics |
-| **Customer** | `sophia.turner@gmail.com` | `Password123!` | Browse services, instant booking, track active repairs, online Stripe checkout & history |
-
-*Additional Seeded Accounts:*
-- Technicians: `marcus.technician@fixmate.io`, `david.technician@fixmate.io`
-- Customers: `liam.harper@gmail.com`, `emma.watson@gmail.com`
+</div>
 
 ---
 
-## 🌟 Key Features
+## 📌 Table of Contents
 
-1. **Role-Based Access Control (RBAC):**
-   - Three distinct stakeholder roles (`customer`, `technician`, `admin`).
-   - Private route guards in Next.js Server Components with automatic role-boundary redirects.
-   - Stateless JWT verification via Better Auth's remote JWKS endpoint and Express middlewares (`verifyToken`, `verifyCustomer`, `verifyTechnician`, `verifyAdmin`).
-
-2. **Server-Side Service Catalog & Filtering (Challenge 1):**
-   - Browse services across 7 categories with MongoDB aggregation pipelines.
-   - Text search (`q`), category filters, service mode (`Home Visit` vs `Shop Drop-off`), and sorting (`price-asc`, `price-desc`, `newest`, `oldest`).
-   - Query parameters survive browser reload via URL search parameters.
-
-3. **Strict Job Status Pipeline & Guards (Challenge 3):**
-   - Enforces linear state transitions: `requested` ➔ `accepted` / `rejected` ➔ `in-progress` ➔ `completed`.
-   - Technicians and admins are blocked from booking repairs.
-   - Technicians cannot book their own services.
-   - Customers cannot submit duplicate active requests for the same service.
-   - Cancellation permitted strictly while the job is in `requested` status.
-
-4. **Stripe Pay-After-Service & Webhook (Challenge 4):**
-   - Stripe Checkout initiated only for `completed` and `unpaid` jobs.
-   - Server Derives price strictly from the database (tamper-proof).
-   - Idempotent payment fulfillment handles concurrent verifications and Stripe webhook retries with zero duplicate entries.
-   - Webhook mounted with raw body parsing before standard JSON middleware.
-
-5. **Server-Side Media Processing:**
-   - Dedicated authenticated `/api/upload` route for ImgBB uploads.
-   - Server-only API key protection; zero client-side leakage.
-   - Strict validation on MIME types (`jpeg`, `png`, `webp`) and payload size (≤ 4 MB).
+- [About](#-about)
+- [Live Links & Admin Credentials](#-live-links--admin-credentials)
+- [Key Features](#-key-features)
+- [Tech Stack](#-tech-stack)
+- [NPM Packages Used](#-npm-packages-used)
+- [Database Design](#-database-design)
+- [Security Model](#-security-model)
+- [Job Status Pipeline](#-job-status-pipeline)
+- [API Reference](#-api-reference)
+- [Payment Flow](#-payment-flow)
+- [Environment Variables](#-environment-variables)
+- [Getting Started](#-getting-started)
+- [Deployment](#-deployment)
+- [Related Repository](#-related-repository)
+- [Author](#-author)
 
 ---
 
-## 📦 Core NPM Packages Used
+## 📖 About
 
-### Client (`/client`)
-- `next` (v16.4.6) — App Router, Server Components & Route Handlers
-- `react` & `react-dom` (v19.3.0) — Core UI library
-- `better-auth` (v1.7.25) — Authentication engine with MongoDB adapter & JWT plugin
-- `mongodb` (v7.9.0) — MongoDB Node.js driver for session persistence
-- `tailwindcss` (v4.3.3) — Modern utility-first CSS styling
-- `lucide-react` (v1.75.0) — Consistent iconography
-- `sonner` (v2.0.8) — Responsive toast notification framework
-- `recharts` (v3.11.0) — Dashboard metrics and revenue data visualization
-- `react-hook-form` & `zod` — Schema validation and form management
+This is the backend of **FixMate**, a role-based platform where **Customers** book repairs, **Technicians** list services and run jobs, and **Admins** moderate the marketplace. The API owns all business rules: nothing important is trusted from the client.
 
-### Server (`/server`)
-- `express` — REST API framework
-- `mongodb` — Native MongoDB driver for Atlas database operations
-- `jose` — Remote JWKS retrieval and cryptographic JWT verification
-- `stripe` — Stripe SDK for checkout sessions and webhook verification
-- `cors` — Cross-Origin Resource Sharing middleware
-- `dotenv` — Environment configuration loader
+Health check: `GET /` → `{"success":true,"message":"FixMate API Server is running"}`
 
 ---
 
-## 🛠️ Project Structure & Setup
+## 🌐 Live Links & Admin Credentials
 
-```text
-fixmate/
-├── client/              # Next.js 16 frontend client
-│   ├── app/             # App router pages, layouts, and /api routes
-│   ├── components/      # UI components, modals, tables, badges
-│   ├── lib/             # API client, Better Auth config, data hooks
-│   └── scripts/         # Database seeding scripts
-├── server/              # Express.js REST backend
-│   ├── src/
-│   │   ├── config/      # CORS and Stripe SDK initialization
-│   │   ├── middlewares/ # JWT auth, role guards, error handlers
-│   │   ├── routes/      # services, bookings, payments, admin, users, stats
-│   │   └── db.js        # MongoDB client and collection accessors
-│   └── api/             # Vercel serverless entrypoint
-└── docs/                # Architecture specifications and compliance audit
+| Resource | Link |
+| --- | --- |
+| 🚀 Live API | https://fixmate-server-six.vercel.app/ |
+| 🖥️ Live Client | https://fixmate-client-ujyn.vercel.app/ |
+
+> ⚠️ Replace with your real seeded admin account before publishing.
+
+| Role | Email | Password |
+| --- | --- | --- |
+| 👑 Admin | `admin@fixmate.com` | `YourAdminPassword` |
+
+**Stripe test card:** `4242 4242 4242 4242`
+
+---
+
+## ✨ Key Features
+
+- 🔐 **JWT verification** with custom role middlewares: `verifyToken`, `verifyCustomer`, `verifyTechnician`, `verifyAdmin`
+- 🚦 `401 Unauthorized` for missing/invalid tokens, `403 Forbidden` for wrong role
+- 🧱 **Ownership checks**: a user can only reach their own data, even if they change an email in the URL
+- 🔄 **Server-enforced status pipeline**: invalid transitions are rejected
+- 🔍 **Server-side search, filter & sort** powered by MongoDB queries
+- 🚫 **Duplicate active-request prevention** per customer and service
+- 💳 **Stripe Checkout** with amounts always loaded from the database, never from the client
+- 🪝 **Stripe Webhook** + success-page verification, **idempotent** so a payment is never saved twice
+- 🛡️ Signup role sanitization: anything other than `customer` or `technician` is saved as `customer`
+- 🌱 Seed data for technicians, 12+ approved services, and bookings in multiple statuses
+
+---
+
+## 🧰 Tech Stack
+
+| Area | Technology |
+| --- | --- |
+| Runtime | Node.js |
+| Framework | Express.js |
+| Database | MongoDB |
+| Authentication | JWT + BetterAuth session on the client |
+| Payments | Stripe (Checkout + Webhook, test mode) |
+| Media | ImgBB (uploaded from the client) |
+| Deployment | Vercel |
+
+---
+
+## 📦 NPM Packages Used
+
+> ⚠️ Compare with your `package.json` and make this list exact.
+
+| Package | Purpose |
+| --- | --- |
+| `express` | Web framework |
+| `mongodb` | MongoDB driver |
+| `cors` | Cross-origin configuration |
+| `dotenv` | Environment variables |
+| `jsonwebtoken` | JWT signing & verification |
+| `stripe` | Stripe Checkout & webhooks |
+| `nodemon` *(dev)* | Auto-restart in development |
+
+---
+
+## 🗄️ Database Design
+
+FixMate uses **4 collections** of its own. BetterAuth additionally creates `session`, `account` and `verification` collections automatically; its `user` collection serves as `users`.
+
+| Collection | Purpose |
+| --- | --- |
+| `users` | Every user, their role, and profile info (`role`, `phone`, `area`, `bio`) |
+| `services` | Repair services offered by technicians, with approval status and availability |
+| `bookings` | Every repair request and its status, final amount, and payment status |
+| `payments` | One payment record per paid job |
+
+```
+users ──(technicianEmail)──► services ──(serviceId)──► bookings ──(bookingId)──► payments
+  └────────────(customerEmail / technicianEmail)──────────┘
 ```
 
-### Quick Start (Local Development)
+Booking documents copy service and technician details at request time, so a booking still displays correctly if the service is later edited or deleted. `payments.stripeSessionId` is unique to guarantee a payment is stored only once.
 
-1. **Install Dependencies:**
-   ```bash
-   cd client && npm install
-   cd ../server && npm install
-   ```
+---
 
-2. **Configure Environment Variables:**
-   - Copy `client/.env.example` to `client/.env.local`
-   - Copy `server/.env.example` to `server/.env`
+## 🛡️ Security Model
 
-3. **Seed Database:**
-   ```bash
-   cd client
-   npm run seed
-   ```
+| Layer | What it does |
+| --- | --- |
+| `verifyToken` | Validates the JWT. Missing or invalid token → **401** |
+| `verifyCustomer` | Requires role `customer`. Wrong role → **403** |
+| `verifyTechnician` | Requires role `technician`. Wrong role → **403** |
+| `verifyAdmin` | Requires role `admin`. Wrong role → **403** |
+| Ownership check | Queries always use the email from the verified token, never from the URL or body |
+| Secrets | MongoDB, JWT, ImgBB, and Stripe credentials live in `.env` only |
 
-4. **Run Servers:**
-   - Client: `cd client && npm run dev` (starts on `http://localhost:3000`)
-   - Server: `cd server && npm run dev` (starts on `http://localhost:5000`)
+---
+
+## 🚦 Job Status Pipeline
+
+| Current | Next | Who | Rule |
+| --- | --- | --- | --- |
+| `requested` | `accepted` | Technician (owner) | — |
+| `requested` | `rejected` | Technician (owner) | Final state |
+| `requested` | `cancelled` | Customer (owner) | Final state |
+| `accepted` | `in-progress` | Technician (owner) | — |
+| `in-progress` | `completed` | Technician (owner) | `finalAmount` must be a number > 0 |
+| `completed` + `unpaid` | `paid` | Stripe | Only once per booking |
+
+Any other transition (for example `requested → completed`, or editing a `cancelled` job) is rejected by the server.
+
+**Business rules**
+- A customer cannot hold two active requests (`requested`, `accepted`, `in-progress`) for the same service
+- Technicians and admins cannot create bookings
+- A technician cannot book their own service
+- Payment is possible only for a `completed` + `unpaid` booking owned by the logged-in customer
+
+---
+
+## 📡 API Reference
+
+> ⚠️ Verify the paths against your route files and adjust if any differ.
+
+### Public
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/` | Health check |
+| `GET` | `/api/services` | Approved & available services. Supports `search`, `category`, `serviceMode`, `sort`, and `limit` query params |
+| `GET` | `/api/services/:id` | Single approved service |
+
+### Customer — `verifyToken` + `verifyCustomer`
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/api/bookings` | Create a repair request |
+| `GET` | `/api/bookings/my` | List own bookings |
+| `PATCH` | `/api/bookings/:id/cancel` | Cancel while `requested` |
+| `POST` | `/api/payments/create-checkout-session` | Start Stripe Checkout for a completed, unpaid booking |
+| `GET` | `/api/payments/verify?session_id=` | Verify Stripe session and save the payment |
+| `GET` | `/api/payments/my` | Own payment history |
+
+### Technician — `verifyToken` + `verifyTechnician`
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/api/services` | Add a service (`pending`) |
+| `GET` | `/api/services/my` | List own services |
+| `PATCH` | `/api/services/:id` | Update a service (resets to `pending`) |
+| `DELETE` | `/api/services/:id` | Delete a service |
+| `GET` | `/api/bookings/technician` | Jobs assigned to this technician |
+| `PATCH` | `/api/bookings/:id/status` | Move a job through the pipeline |
+
+### Admin — `verifyToken` + `verifyAdmin`
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/api/admin/users` | All users |
+| `PATCH` | `/api/admin/users/:id/role` | Change a user's role (not your own) |
+| `GET` | `/api/admin/services` | All services |
+| `PATCH` | `/api/admin/services/:id/approval` | Approve or reject a service |
+| `GET` | `/api/admin/bookings` | All bookings |
+| `GET` | `/api/admin/payments` | All transactions |
+
+### Authenticated (any role) — `verifyToken`
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `PATCH` | `/api/users/profile` | Update name, phone, area, bio, image |
+
+### Webhook
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/api/payments/webhook` | Stripe webhook. Uses the raw body and signing-secret verification |
+
+### Search & Sort Example
+
+```
+GET /api/services?search=iphone&category=Smartphone&serviceMode=Home%20Visit&sort=price-asc
+```
+
+---
+
+## 💳 Payment Flow
+
+1. Customer clicks **Pay Now**. The client calls `POST /api/payments/create-checkout-session` with only the `bookingId`.
+2. The server loads the booking, checks ownership, `completed` status, and `unpaid` state, then creates a Checkout Session with `unit_amount = finalAmount × 100`. `bookingId` and `customerEmail` go into the session metadata.
+3. The customer pays on Stripe and lands on `/payment/success?session_id=...`.
+4. The client calls `GET /api/payments/verify`. The server retrieves the session, and if `payment_status === 'paid'` it inserts the payment and marks the booking `paid`.
+5. The webhook handles the same event as a safety net. A unique `stripeSessionId` and an already-paid check make both paths **idempotent**.
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+PORT=5000
+
+# MongoDB
+MONGODB_URI=your_mongodb_connection_string
+DB_NAME=fixmate
+
+# JWT
+JWT_SECRET=your_jwt_secret
+
+# Stripe (test mode)
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxx
+
+# ImgBB
+IMGBB_API_KEY=your_imgbb_api_key
+
+# URLs
+CLIENT_URL=http://localhost:3000
+```
+
+> Never commit `.env`. Variable names must match the ones used in your code.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- MongoDB Atlas (or local MongoDB)
+- Stripe account (test mode) and the Stripe CLI for local webhooks
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/YOUR_USERNAME/fixmate-server.git
+cd fixmate-server
+
+# 2. Install dependencies
+npm install
+
+# 3. Add environment variables
+cp .env.example .env   # then fill in your values
+
+# 4. Start the server
+npm run dev
+```
+
+The API runs at [http://localhost:5000](http://localhost:5000).
+
+### Test the webhook locally
+
+```bash
+stripe listen --forward-to localhost:5000/api/payments/webhook
+```
+
+Copy the printed `whsec_...` value into `STRIPE_WEBHOOK_SECRET`.
+
+### Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start with nodemon |
+| `npm start` | Start in production |
+
+---
+
+## ☁️ Deployment
+
+Deployed on **Vercel**.
+
+1. Add all `.env` variables in the Vercel project settings.
+2. Add the production client domain (`https://fixmate-client-ujyn.vercel.app`) to the **CORS allowed origins**.
+3. In the Stripe Dashboard (test mode), add the webhook endpoint `https://fixmate-server-six.vercel.app/api/payments/webhook` and copy its signing secret into `STRIPE_WEBHOOK_SECRET`.
+4. Redeploy and confirm the health check responds.
+
+---
+
+## 🔗 Related Repository
+
+**🖥️ FixMate Client (Next.js + BetterAuth):** https://github.com/YOUR_USERNAME/fixmate-client
+
+---
+
+## 👨‍💻 Author
+
+**Your Name**
+- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
+- LinkedIn: [your-linkedin](https://linkedin.com/in/your-linkedin)
+- Portfolio: [your-portfolio.com](https://your-portfolio.com)
+
+---
+
+<div align="center">
+
+⭐ If you like this project, please give it a star!
+
+</div>
